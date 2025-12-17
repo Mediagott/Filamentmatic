@@ -214,29 +214,46 @@ fun SpoolDetailScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     
+                    // Use remember with mutableStateOf for editable text fields
+                    var remainingWeightText by remember(editableSpool.id) { 
+                        mutableStateOf(editableSpool.remainingWeightG.toString()) 
+                    }
+                    var startWeightText by remember(editableSpool.id) { 
+                        mutableStateOf(editableSpool.startWeightG?.toString() ?: "") 
+                    }
+                    var taraWeightText by remember(editableSpool.id) { 
+                        mutableStateOf(editableSpool.emptySpoolWeightG?.toString() ?: "") 
+                    }
+                    
                     Row(modifier = Modifier.fillMaxWidth()) {
                         OutlinedTextField(
-                            value = editableSpool.remainingWeightG.toString(),
-                            onValueChange = { 
-                                it.toFloatOrNull()?.let { weight ->
-                                    viewModel.updateSpool(editableSpool.copy(remainingWeightG = weight))
+                            value = remainingWeightText,
+                            onValueChange = { newValue ->
+                                // Erlaube leere Eingabe und Zahlen mit Dezimalpunkt
+                                if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                    remainingWeightText = newValue
+                                    val parsed = newValue.toFloatOrNull() ?: 0f
+                                    viewModel.updateSpool(editableSpool.copy(remainingWeightG = parsed))
                                 }
                             },
                             label = { Text("Restgewicht (g)") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         OutlinedTextField(
-                            value = editableSpool.startWeightG?.toString() ?: "",
-                            onValueChange = { 
-                                viewModel.updateSpool(
-                                    editableSpool.copy(startWeightG = it.toFloatOrNull())
-                                )
+                            value = startWeightText,
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                    startWeightText = newValue
+                                    viewModel.updateSpool(
+                                        editableSpool.copy(startWeightG = newValue.toFloatOrNull())
+                                    )
+                                }
                             },
                             label = { Text("Startgewicht (g)") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
@@ -245,14 +262,17 @@ fun SpoolDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     OutlinedTextField(
-                        value = editableSpool.emptySpoolWeightG?.toString() ?: "",
-                        onValueChange = { 
-                            viewModel.updateSpool(
-                                editableSpool.copy(emptySpoolWeightG = it.toFloatOrNull())
-                            )
+                        value = taraWeightText,
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                taraWeightText = newValue
+                                viewModel.updateSpool(
+                                    editableSpool.copy(emptySpoolWeightG = newValue.toFloatOrNull())
+                                )
+                            }
                         },
                         label = { Text("Leerspulengewicht / Tara (g)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )

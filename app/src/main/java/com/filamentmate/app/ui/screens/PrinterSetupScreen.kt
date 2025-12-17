@@ -32,7 +32,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -153,47 +155,105 @@ fun PrinterSetupScreen(
                                 singleLine = true
                             )
                             
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            Row(modifier = Modifier.fillMaxWidth()) {
+                            // Bambu Lab spezifische Felder
+                            if (config.printerType == PrinterType.BAMBU) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                
+                                Text(
+                                    text = "Bambu Lab Zugangsdaten",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Findest du auf dem Drucker unter: Zahnrad → Allgemein → LAN",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                // Parse existing token to separate fields
+                                val tokenParts = (config.accessToken ?: ":").split(":")
+                                var serialNumber by remember(config.id) { 
+                                    mutableStateOf(if (tokenParts.size >= 1) tokenParts[0] else "") 
+                                }
+                                var accessCode by remember(config.id) { 
+                                    mutableStateOf(if (tokenParts.size >= 2) tokenParts[1] else "") 
+                                }
+                                
                                 OutlinedTextField(
-                                    value = config.port.toString(),
-                                    onValueChange = { 
-                                        it.toIntOrNull()?.let { port ->
-                                            viewModel.updateConfig(config.copy(port = port))
-                                        }
+                                    value = serialNumber,
+                                    onValueChange = { newValue ->
+                                        serialNumber = newValue
+                                        viewModel.updateConfig(config.copy(
+                                            accessToken = "$newValue:$accessCode"
+                                        ))
                                     },
-                                    label = { Text("Port") },
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    modifier = Modifier.weight(1f),
+                                    label = { Text("Seriennummer") },
+                                    placeholder = { Text("z.B. 01P00A123456789") },
+                                    modifier = Modifier.fillMaxWidth(),
                                     singleLine = true
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
                                 OutlinedTextField(
-                                    value = config.pollIntervalSec.toString(),
-                                    onValueChange = { 
-                                        it.toIntOrNull()?.let { interval ->
-                                            viewModel.updateConfig(config.copy(pollIntervalSec = interval))
-                                        }
+                                    value = accessCode,
+                                    onValueChange = { newValue ->
+                                        accessCode = newValue
+                                        viewModel.updateConfig(config.copy(
+                                            accessToken = "$serialNumber:$newValue"
+                                        ))
                                     },
-                                    label = { Text("Intervall (s)") },
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    modifier = Modifier.weight(1f),
+                                    label = { Text("Access-Code") },
+                                    placeholder = { Text("8-stelliger Code") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true
+                                )
+                            } else {
+                                // Standard-Felder für andere Provider
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    OutlinedTextField(
+                                        value = config.port.toString(),
+                                        onValueChange = { 
+                                            it.toIntOrNull()?.let { port ->
+                                                viewModel.updateConfig(config.copy(port = port))
+                                            }
+                                        },
+                                        label = { Text("Port") },
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        modifier = Modifier.weight(1f),
+                                        singleLine = true
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    OutlinedTextField(
+                                        value = config.pollIntervalSec.toString(),
+                                        onValueChange = { 
+                                            it.toIntOrNull()?.let { interval ->
+                                                viewModel.updateConfig(config.copy(pollIntervalSec = interval))
+                                            }
+                                        },
+                                        label = { Text("Intervall (s)") },
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        modifier = Modifier.weight(1f),
+                                        singleLine = true
+                                    )
+                                }
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                OutlinedTextField(
+                                    value = config.accessToken ?: "",
+                                    onValueChange = { 
+                                        viewModel.updateConfig(config.copy(accessToken = it.ifEmpty { null }))
+                                    },
+                                    label = { Text("Access Token (optional)") },
+                                    modifier = Modifier.fillMaxWidth(),
                                     singleLine = true
                                 )
                             }
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            OutlinedTextField(
-                                value = config.accessToken ?: "",
-                                onValueChange = { 
-                                    viewModel.updateConfig(config.copy(accessToken = it.ifEmpty { null }))
-                                },
-                                label = { Text("Access Token (optional)") },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true
-                            )
                         }
                     }
                 }
