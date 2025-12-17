@@ -33,8 +33,6 @@ import com.filamentmate.app.ui.screens.PrintHistoryScreen
 import com.filamentmate.app.ui.screens.PrinterSetupScreen
 import com.filamentmate.app.ui.screens.SpoolDetailScreen
 import com.filamentmate.app.ui.screens.SpoolsScreen
-import com.filamentmate.app.ui.screens.calibration.CalibrationHubScreen
-import com.filamentmate.app.ui.screens.calibration.CalibrationWizardScreen
 import com.filamentmate.app.ui.viewmodel.AppInitViewModel
 
 data class BottomNavItem(
@@ -90,7 +88,6 @@ fun FilamentMateNavHost(
         ) {
             composable(Routes.DASHBOARD) {
                 DashboardScreen(
-                    onNavigateToCalibration = { navController.navigate(Routes.CALIBRATION_HUB) },
                     onNavigateToSpoolDetail = { spoolId -> 
                         navController.navigate(Routes.spoolDetail(spoolId)) 
                     }
@@ -135,19 +132,13 @@ fun FilamentMateNavHost(
                 arguments = listOf(navArgument("profileId") { type = NavType.LongType })
             ) {
                 FilamentProfileDetailScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToCalibration = { testType ->
-                        navController.navigate(Routes.calibrationWizard(testType))
-                    }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
             
             composable(Routes.FILAMENT_PROFILE_ADD) {
                 FilamentProfileDetailScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToCalibration = { testType ->
-                        navController.navigate(Routes.calibrationWizard(testType))
-                    }
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
             
@@ -157,26 +148,6 @@ fun FilamentMateNavHost(
             
             composable(Routes.PRINT_HISTORY) {
                 PrintHistoryScreen()
-            }
-            
-            composable(Routes.CALIBRATION_HUB) {
-                CalibrationHubScreen(
-                    onNavigateBack = { navController.popBackStack() },
-                    onNavigateToWizard = { testType ->
-                        navController.navigate(Routes.calibrationWizard(testType))
-                    }
-                )
-            }
-            
-            composable(
-                route = Routes.CALIBRATION_WIZARD,
-                arguments = listOf(navArgument("testType") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val testType = backStackEntry.arguments?.getString("testType") ?: "TEMP"
-                CalibrationWizardScreen(
-                    testType = testType,
-                    onNavigateBack = { navController.popBackStack() }
-                )
             }
         }
     }

@@ -19,17 +19,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Print
-import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,7 +50,6 @@ import java.util.Locale
 
 @Composable
 fun DashboardScreen(
-    onNavigateToCalibration: () -> Unit,
     onNavigateToSpoolDetail: (Long) -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
@@ -194,35 +189,6 @@ fun DashboardScreen(
                     spoolName = job.spool?.name,
                     usedWeight = job.printJob.usedWeightG,
                     timestamp = job.printJob.startedAt
-                )
-            }
-        }
-        
-        // Quick Actions
-        item {
-            Text(
-                text = "Schnellaktionen",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                QuickActionCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Kalibrieren",
-                    icon = Icons.Default.Build,
-                    onClick = onNavigateToCalibration
-                )
-                QuickActionCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Profile",
-                    icon = Icons.Default.Science,
-                    onClick = { /* Navigate handled by bottom nav */ }
                 )
             }
         }
@@ -494,41 +460,6 @@ fun RecentJobCard(
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.secondary
-            )
-        }
-    }
-}
-
-@Composable
-fun QuickActionCard(
-    modifier: Modifier = Modifier,
-    title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = modifier.clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier.size(32.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium
             )
         }
     }
