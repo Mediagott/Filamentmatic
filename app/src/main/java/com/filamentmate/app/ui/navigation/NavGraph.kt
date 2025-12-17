@@ -2,7 +2,6 @@ package com.filamentmate.app.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory2
@@ -17,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -34,6 +34,8 @@ import com.filamentmate.app.ui.screens.PrinterSetupScreen
 import com.filamentmate.app.ui.screens.SpoolDetailScreen
 import com.filamentmate.app.ui.screens.SpoolsScreen
 import com.filamentmate.app.ui.screens.calibration.CalibrationHubScreen
+import com.filamentmate.app.ui.screens.calibration.CalibrationWizardScreen
+import com.filamentmate.app.ui.viewmodel.AppInitViewModel
 
 data class BottomNavItem(
     val route: String,
@@ -53,6 +55,9 @@ val bottomNavItems = listOf(
 fun FilamentMateNavHost(
     navController: NavHostController = rememberNavController()
 ) {
+    // Initialize database on first launch
+    val appInitViewModel: AppInitViewModel = hiltViewModel()
+    
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -168,9 +173,7 @@ fun FilamentMateNavHost(
                 arguments = listOf(navArgument("testType") { type = NavType.StringType })
             ) { backStackEntry ->
                 val testType = backStackEntry.arguments?.getString("testType") ?: "TEMP"
-                // CalibrationWizardScreen will be added in Etappe 6
-                // For now, placeholder
-                com.filamentmate.app.ui.screens.calibration.CalibrationWizardScreen(
+                CalibrationWizardScreen(
                     testType = testType,
                     onNavigateBack = { navController.popBackStack() }
                 )
