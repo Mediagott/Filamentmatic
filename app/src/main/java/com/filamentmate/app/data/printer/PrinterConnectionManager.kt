@@ -1,5 +1,6 @@
 package com.filamentmate.app.data.printer
 
+import android.util.Log
 import com.filamentmate.app.data.database.entity.PrinterConfigEntity
 import com.filamentmate.app.data.database.entity.PrinterType
 import com.filamentmate.app.data.repository.PrinterRepository
@@ -16,6 +17,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "PrinterConnectionMgr"
 
 /**
  * Manager für die aktive Drucker-Verbindung.
@@ -50,8 +53,14 @@ class PrinterConnectionManager @Inject constructor(
     }
     
     private suspend fun handleConfigChange(config: PrinterConfigEntity) {
-        // Wenn sich der Provider-Typ geändert hat, neu verbinden
-        if (currentConfig?.printerType != config.printerType || currentProvider == null) {
+        // Prüfe ob sich relevante Verbindungsparameter geändert haben
+        val needsReconnect = currentProvider == null ||
+            currentConfig?.printerType != config.printerType ||
+            currentConfig?.ip != config.ip ||
+            currentConfig?.accessToken != config.accessToken ||
+            currentConfig?.mockModeEnabled != config.mockModeEnabled
+        
+        if (needsReconnect) {
             disconnect()
             connect(config)
         }
@@ -59,6 +68,7 @@ class PrinterConnectionManager @Inject constructor(
     }
     
     private suspend fun connect(config: PrinterConfigEntity) {
+        Log.d(TAG, "Connecting to ${config.printerType} at ${config.ip}")
         _connectionState.value = ConnectionState.Connecting
         
         val provider = providerFactory.getProvider(
@@ -66,12 +76,15 @@ class PrinterConnectionManager @Inject constructor(
         )
         
         try {
+            Log.d(TAG, "Initializing provider: ${provider.type}")
             provider.initialize(config)
             currentProvider = provider
+            Log.d(TAG, "Provider initialized, starting status observation")
             
             // Starte Status-Beobachtung
             scope.launch {
                 provider.observeStatus().collectLatest { status ->
+                    Log.d(TAG, "Status update: connected=${status.connected}, state=${status.jobState}")
                     _printerStatus.value = status
                     _connectionState.value = if (status.connected) {
                         ConnectionState.Connected
@@ -82,6 +95,7 @@ class PrinterConnectionManager @Inject constructor(
             }
             
         } catch (e: Exception) {
+            Log.e(TAG, "Connection failed: ${e.message}", e)
             _connectionState.value = ConnectionState.Error(e.message ?: "Verbindungsfehler")
         }
     }
