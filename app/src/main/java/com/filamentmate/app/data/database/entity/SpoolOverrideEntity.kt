@@ -1,0 +1,39 @@
+package com.filamentmate.app.data.database.entity
+
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+
+/**
+ * Spulen-spezifische Überschreibungen für Profil-Werte.
+ * Optional: Eine Spule kann abweichende Werte vom Profil haben.
+ */
+@Entity(
+    tableName = "spool_overrides",
+    foreignKeys = [
+        ForeignKey(
+            entity = SpoolEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["spoolId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [
+        Index(value = ["spoolId"], unique = true)
+    ]
+)
+data class SpoolOverrideEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val spoolId: Long,
+    
+    // Überschreibbare Werte
+    val recommendedTempC: Int? = null,
+    val maxVolumetricFlowMm3s: Float? = null,
+    val pressureAdvanceValue: Float? = null,
+    val flowRatio: Float? = null,
+    
+    val notes: String? = null,
+    val updatedAt: Long = System.currentTimeMillis()
+)
