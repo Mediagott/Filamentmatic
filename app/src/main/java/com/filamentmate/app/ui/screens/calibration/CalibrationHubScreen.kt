@@ -114,12 +114,13 @@ fun CalibrationTestCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .height(88.dp)  // Einheitliche Höhe für alle Karten
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -141,7 +142,8 @@ fun CalibrationTestCard(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2
                 )
             }
         }
