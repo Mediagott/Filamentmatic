@@ -12,7 +12,15 @@ data class PrinterStatus(
     val jobProgress: Float = 0f,              // 0-100%
     val usedWeightG: Float? = null,           // Verbrauchtes Gewicht (wenn verfügbar)
     val usedLengthMm: Float? = null,          // Verbrauchte Länge (wenn verfügbar)
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    
+    // Temperaturen (Bambu Lab)
+    val nozzleTempC: Float? = null,
+    val bedTempC: Float? = null,
+    val chamberTempC: Float? = null,
+    
+    // AMS Slot-Gewichte (Slot-Index -> Gewicht in Gramm)
+    val slotRemainingWeightG: Map<Int, Float> = emptyMap()
 )
 
 /**
@@ -20,6 +28,7 @@ data class PrinterStatus(
  */
 enum class JobState {
     IDLE,
+    STARTING,     // Neu: Vorbereitung
     PREPARING,
     PRINTING,
     PAUSED,

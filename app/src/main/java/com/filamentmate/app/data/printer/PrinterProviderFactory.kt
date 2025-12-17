@@ -50,7 +50,7 @@ class PrinterProviderFactory @Inject constructor(
         return when (type) {
             PrinterType.MOCK -> true
             PrinterType.MANUAL -> true
-            PrinterType.BAMBU -> false
+            PrinterType.BAMBU -> true  // Jetzt implementiert!
             PrinterType.OCTOPRINT -> false
             PrinterType.MOONRAKER -> false
             PrinterType.PRUSALINK -> false

@@ -84,4 +84,11 @@ dependencies {
     
     // Gson
     implementation(libs.gson)
+    
+    // Networking
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    
+    // MQTT (Bambu Lab)
+    implementation(libs.paho.client)
 }
